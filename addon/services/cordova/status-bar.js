@@ -32,8 +32,8 @@ export default Service.extend({
     return this.get('_count');
   },
 
-  isHidden: computed.bool('_count'),
-  isVisible: computed.not('isHidden'),
+  isHidden: computed.not('isVisible'),
+  isVisible: computed.bool('_count'),
 
   update() {
     if (this._statusbar) {
