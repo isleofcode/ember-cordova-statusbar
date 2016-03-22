@@ -2,24 +2,28 @@ import Ember from 'ember';
 
 const {
   computed,
-  Service
+  Service,
+  inject
 } = Ember;
 
 export default Service.extend({
 
   _count: 0,
+  _statusbar: null,
+  cordova: inject.service('cordova'),
 
-  show() {
-    let COUNT = this.get('_count');
-    COUNT--;
-    if (COUNT < 0) {
-      COUNT = 0;
+  hide() {
+    let count = this.get('_count');
+
+    count--;
+    if (count < 0) {
+      count = 0;
     }
-    this.set('_count', COUNT);
+    this.set('_count', count);
     this.update();
   },
 
-  hide() {
+  show() {
     this.incrementProperty('_count');
     this.update();
   },
@@ -29,16 +33,25 @@ export default Service.extend({
   },
 
   isHidden: computed.bool('_count'),
+  isVisible: computed.not('isHidden'),
 
   update() {
-
-    if (window.StatusBar) {
+    if (this._statusbar) {
       if (this.get('isHidden')) {
-        window.StatusBar.hide();
+        this._statusbar.hide();
       } else {
-        window.StatusBar.show();
+        this._statusbar.show();
       }
     }
+  },
+
+  init() {
+    this._super();
+    this.get('cordova').ready()
+      .then(() => {
+        this._statusbar = window.StatusBar;
+        this.update();
+      });
   }
 
 });
